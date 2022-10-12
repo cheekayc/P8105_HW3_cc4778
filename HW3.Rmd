@@ -21,7 +21,7 @@ n_users =
 The `instacart` dataset contains `r ncol(instacart)` variables and `r nrow(instacart)` observations, where each row in the dataset is a product from an order. There is a single order per user, and there are `r nrow(n_users)` unique users in this dataset.
 
 
-
+try to see if this work
 
 
 
