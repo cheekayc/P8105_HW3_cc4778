@@ -4,6 +4,8 @@ author: "Chee Kay Cheong"
 output: github_document
 ---
 
+# Problem 1
+
 ```{r setup, include = FALSE}
 library(tidyverse)
 library(p8105.datasets)
@@ -20,8 +22,42 @@ n_users =
 
 The `instacart` dataset contains `r ncol(instacart)` variables and `r nrow(instacart)` observations, where each row in the dataset is a product from an order. There is a single order per user, and there are `r nrow(n_users)` unique users in this dataset.
 
+### Questions
 
-try to see if this work
+1. How many aisles are there, and which aisles are the most items ordered from?
+```{r Q1}
+instacart %>% 
+  select(aisle_id, aisle) %>% 
+  distinct() 
+# There are 134 distinct aisles.
+instacart %>% 
+  group_by(aisle) %>% 
+  summarize(
+    n_order = n()) %>% 
+  arrange(desc(n_order))
+# Most items are ordered from the "Fresh vegetables" aisle.
+```
 
+2. Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+```{r Q2, fig.width = 16, fig.height = 12}
+instacart %>% 
+  group_by(aisle) %>% 
+  summarize(
+    n_order = n()) %>% 
+  filter(n_order > 10000) %>% 
+  ggplot(aes(x = aisle, y = n_order, fill = aisle)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  geom_text(aes(label = n_order),
+            position = position_stack(vjust = 1)) +
+  labs(
+    title = "Number of items ordered in each aisle",
+    y = "Number of items ordered") +
+  theme(legend.key.size = unit(1.2, 'cm'))
+```
 
+3. Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+```{r Q3}
+
+```
 
