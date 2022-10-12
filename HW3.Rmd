@@ -11,3 +11,17 @@ library(p8105.datasets)
 data("instacart")
 ```
 
+```{r distinct users, echo = FALSE}
+n_users =  
+  instacart %>% 
+  select(user_id) %>% 
+  distinct()
+```
+
+The `instacart` dataset contains `r ncol(instacart)` variables and `r nrow(instacart)` observations, where each row in the dataset is a product from an order. There is a single order per user, and there are `r nrow(n_users)` unique users in this dataset.
+
+
+
+
+
+
