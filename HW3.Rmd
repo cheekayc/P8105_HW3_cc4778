@@ -1,0 +1,13 @@
+---
+title: "P8105_HW3_cc4778"
+author: "Chee Kay Cheong"
+output: github_document
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(p8105.datasets)
+
+data("instacart")
+```
+
