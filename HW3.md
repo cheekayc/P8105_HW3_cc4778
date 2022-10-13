@@ -90,3 +90,87 @@ instacart %>%
     aisles “baking ingredients”, “dog food care”, and “packaged
     vegetables fruits”. Include the number of times each item is ordered
     in your table.
+
+# Problem 2
+
+``` r
+accel = 
+  read_csv("Data/accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    activity_1:activity_1440,
+    names_to = "minute",
+    names_prefix = "activity_",
+    values_to = "activity_count") %>% 
+  mutate(
+    week_ = ifelse(day %in% c("Saturday", "Sunday"), "Weekend", "Weekday"),
+    minute = as.numeric(minute))
+```
+
+After tidying the `accel` dataset, it now has 6 variables and 50400
+observations.
+
+The variables are:
+
+-   `week` : numeric
+
+-   `day_id` : numeric
+
+-   `day` : character
+
+-   `minute` : numeric
+
+-   `activity_count` : numeric
+
+-   `week_` : character
+
+``` r
+accel %>% 
+  group_by(day_id, day) %>% 
+  summarize(
+    total_activity_per_day = sum(activity_count)) %>% 
+ knitr::kable(digits = 1)
+```
+
+| day_id | day       | total_activity_per_day |
+|-------:|:----------|-----------------------:|
+|      1 | Friday    |               480542.6 |
+|      2 | Monday    |                78828.1 |
+|      3 | Saturday  |               376254.0 |
+|      4 | Sunday    |               631105.0 |
+|      5 | Thursday  |               355923.6 |
+|      6 | Tuesday   |               307094.2 |
+|      7 | Wednesday |               340115.0 |
+|      8 | Friday    |               568839.0 |
+|      9 | Monday    |               295431.0 |
+|     10 | Saturday  |               607175.0 |
+|     11 | Sunday    |               422018.0 |
+|     12 | Thursday  |               474048.0 |
+|     13 | Tuesday   |               423245.0 |
+|     14 | Wednesday |               440962.0 |
+|     15 | Friday    |               467420.0 |
+|     16 | Monday    |               685910.0 |
+|     17 | Saturday  |               382928.0 |
+|     18 | Sunday    |               467052.0 |
+|     19 | Thursday  |               371230.0 |
+|     20 | Tuesday   |               381507.0 |
+|     21 | Wednesday |               468869.0 |
+|     22 | Friday    |               154049.0 |
+|     23 | Monday    |               409450.0 |
+|     24 | Saturday  |                 1440.0 |
+|     25 | Sunday    |               260617.0 |
+|     26 | Thursday  |               340291.0 |
+|     27 | Tuesday   |               319568.0 |
+|     28 | Wednesday |               434460.0 |
+|     29 | Friday    |               620860.0 |
+|     30 | Monday    |               389080.0 |
+|     31 | Saturday  |                 1440.0 |
+|     32 | Sunday    |               138421.0 |
+|     33 | Thursday  |               549658.0 |
+|     34 | Tuesday   |               367824.0 |
+|     35 | Wednesday |               445366.0 |
+
+It seems like this individual would typically have more than 100000
+activities counted every day, except for two Saturdays (one on the 24th
+day, another one on the 31st day), in which the activity count on both
+days are 1440.

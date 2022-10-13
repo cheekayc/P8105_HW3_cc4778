@@ -61,3 +61,47 @@ instacart %>%
 
 ```
 
+
+# Problem 2
+
+```{r read data, message = FALSE}
+accel = 
+  read_csv("Data/accel_data.csv") %>% 
+  janitor::clean_names() %>% 
+  pivot_longer(
+    activity_1:activity_1440,
+    names_to = "minute",
+    names_prefix = "activity_",
+    values_to = "activity_count") %>% 
+  mutate(
+    week_ = ifelse(day %in% c("Saturday", "Sunday"), "Weekend", "Weekday"),
+    minute = as.numeric(minute))
+```
+After tidying the `accel` dataset, it now has `r ncol(accel)` variables and `r nrow(accel)` observations.
+
+The variables are:
+
+* `week` : numeric 
+
+* `day_id` : numeric
+
+* `day` : character
+
+* `minute` : numeric
+
+* `activity_count` : numeric
+
+* `week_` : character
+
+```{r total activity variable, message = FALSE}
+accel %>% 
+  group_by(day_id, day) %>% 
+  summarize(
+    total_activity_per_day = sum(activity_count)) %>% 
+ knitr::kable(digits = 1)
+```
+It seems like this individual would typically have more than 100000 activities counted every day, except for two Saturdays 
+(one on the 24th day, another one on the 31st day), in which the activity count on both days are 1440. 
+
+
+
