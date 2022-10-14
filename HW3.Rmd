@@ -8,6 +8,7 @@ output: github_document
 
 ```{r setup, include = FALSE}
 library(tidyverse)
+library(patchwork)
 library(p8105.datasets)
 
 data("instacart")
@@ -95,13 +96,66 @@ The variables are:
 
 ```{r total activity variable, message = FALSE}
 accel %>% 
-  group_by(day_id, day) %>% 
+  group_by(week, day_id, day) %>% 
   summarize(
     total_activity_per_day = sum(activity_count)) %>% 
  knitr::kable(digits = 1)
 ```
+There are 5 weeks and 35 days, but the `day_id` does not seem to be consistent with the sequence of day in a week. 
 It seems like this individual would typically have more than 100000 activities counted every day, except for two Saturdays 
 (one on the 24th day, another one on the 31st day), in which the activity count on both days are 1440. 
+
+```{r activity vs time graph, fig.width = 16, fig.height = 12, message = FALSE}
+accel %>% 
+  group_by(day) %>% 
+  ggplot(aes(x = minute, y = activity_count, color = day)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth() + 
+  facet_grid(. ~ week) + 
+  labs(
+    title = "Activity count per minute for 24 hour",
+    x = "Minute (24 hour)",
+    y = "Activity count",
+    caption = "Accelerometer data") +
+  viridis::scale_color_viridis(discrete = TRUE)
+```
+
+
+
+# Problem 3
+
+```{r load ny noaa data}
+data("ny_noaa")
+
+ny_noaa =
+  ny_noaa %>%  
+  janitor::clean_names() %>% 
+  mutate(
+    tmax = as.integer(tmax),
+    tmin = as.integer(tmin)) %>% 
+  separate(date, into = c("year", "month", "day")) %>% 
+  mutate(ny_noaa,
+    year = as.integer(year),
+    month = as.integer(month),
+    day = as.integer(day),
+    prcp = prcp / 10,
+    tmax = tmax / 10,
+    tmin = tmin / 10)
+```
+After loading and cleaning the `ny_noaa` dataset, it now contains `r ncol(ny_noaa` variables and `r nrow(ny_noaa)` observations. All observations for temperatures, precipitation, and snowfall are also in reasonable units (mm). The data size is massive, and there is a lot of missing variables across different columns. We cannot simply remove those missing values because we are not sure they can be safely removed without interfering with the analysis. Also, these missing values might impact our mathematical computation :( 
+
+```{r snowfall common value}
+ny_noaa %>% 
+  group_by(snow) %>% 
+  mutate(
+    value = mean(snow, na.rm = TRUE)
+  )
+  
+  
+```
+
+
+
 
 
 
