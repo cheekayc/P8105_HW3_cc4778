@@ -107,17 +107,16 @@ It seems like this individual would typically have more than 100000 activities c
 
 ```{r activity vs time graph, fig.width = 16, fig.height = 12, message = FALSE}
 accel %>% 
+  mutate(day = fct_relevel(day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))) %>% 
   group_by(day) %>% 
   ggplot(aes(x = minute, y = activity_count, color = day)) +
-  geom_point(alpha = 0.3) +
-  geom_smooth() + 
-  facet_grid(. ~ week) + 
+  geom_smooth(se = FALSE) + 
+  facet_grid(. ~ day) + 
   labs(
     title = "Activity count per minute for 24 hour",
     x = "Minute (24 hour)",
     y = "Activity count",
-    caption = "Accelerometer data") +
-  viridis::scale_color_viridis(discrete = TRUE)
+    caption = "Accelerometer data")
 ```
 
 
