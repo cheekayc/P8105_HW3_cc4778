@@ -126,51 +126,138 @@ The variables are:
 
 ``` r
 accel %>% 
-  group_by(day_id, day) %>% 
+  mutate(day = fct_relevel(day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))) %>% 
+  group_by(week, day) %>% 
   summarize(
     total_activity_per_day = sum(activity_count)) %>% 
  knitr::kable(digits = 1)
 ```
 
-| day_id | day       | total_activity_per_day |
-|-------:|:----------|-----------------------:|
-|      1 | Friday    |               480542.6 |
-|      2 | Monday    |                78828.1 |
-|      3 | Saturday  |               376254.0 |
-|      4 | Sunday    |               631105.0 |
-|      5 | Thursday  |               355923.6 |
-|      6 | Tuesday   |               307094.2 |
-|      7 | Wednesday |               340115.0 |
-|      8 | Friday    |               568839.0 |
-|      9 | Monday    |               295431.0 |
-|     10 | Saturday  |               607175.0 |
-|     11 | Sunday    |               422018.0 |
-|     12 | Thursday  |               474048.0 |
-|     13 | Tuesday   |               423245.0 |
-|     14 | Wednesday |               440962.0 |
-|     15 | Friday    |               467420.0 |
-|     16 | Monday    |               685910.0 |
-|     17 | Saturday  |               382928.0 |
-|     18 | Sunday    |               467052.0 |
-|     19 | Thursday  |               371230.0 |
-|     20 | Tuesday   |               381507.0 |
-|     21 | Wednesday |               468869.0 |
-|     22 | Friday    |               154049.0 |
-|     23 | Monday    |               409450.0 |
-|     24 | Saturday  |                 1440.0 |
-|     25 | Sunday    |               260617.0 |
-|     26 | Thursday  |               340291.0 |
-|     27 | Tuesday   |               319568.0 |
-|     28 | Wednesday |               434460.0 |
-|     29 | Friday    |               620860.0 |
-|     30 | Monday    |               389080.0 |
-|     31 | Saturday  |                 1440.0 |
-|     32 | Sunday    |               138421.0 |
-|     33 | Thursday  |               549658.0 |
-|     34 | Tuesday   |               367824.0 |
-|     35 | Wednesday |               445366.0 |
+| week | day       | total_activity_per_day |
+|-----:|:----------|-----------------------:|
+|    1 | Monday    |                78828.1 |
+|    1 | Tuesday   |               307094.2 |
+|    1 | Wednesday |               340115.0 |
+|    1 | Thursday  |               355923.6 |
+|    1 | Friday    |               480542.6 |
+|    1 | Saturday  |               376254.0 |
+|    1 | Sunday    |               631105.0 |
+|    2 | Monday    |               295431.0 |
+|    2 | Tuesday   |               423245.0 |
+|    2 | Wednesday |               440962.0 |
+|    2 | Thursday  |               474048.0 |
+|    2 | Friday    |               568839.0 |
+|    2 | Saturday  |               607175.0 |
+|    2 | Sunday    |               422018.0 |
+|    3 | Monday    |               685910.0 |
+|    3 | Tuesday   |               381507.0 |
+|    3 | Wednesday |               468869.0 |
+|    3 | Thursday  |               371230.0 |
+|    3 | Friday    |               467420.0 |
+|    3 | Saturday  |               382928.0 |
+|    3 | Sunday    |               467052.0 |
+|    4 | Monday    |               409450.0 |
+|    4 | Tuesday   |               319568.0 |
+|    4 | Wednesday |               434460.0 |
+|    4 | Thursday  |               340291.0 |
+|    4 | Friday    |               154049.0 |
+|    4 | Saturday  |                 1440.0 |
+|    4 | Sunday    |               260617.0 |
+|    5 | Monday    |               389080.0 |
+|    5 | Tuesday   |               367824.0 |
+|    5 | Wednesday |               445366.0 |
+|    5 | Thursday  |               549658.0 |
+|    5 | Friday    |               620860.0 |
+|    5 | Saturday  |                 1440.0 |
+|    5 | Sunday    |               138421.0 |
 
-It seems like this individual would typically have more than 100000
-activities counted every day, except for two Saturdays (one on the 24th
+There are 5 weeks and 35 days, but the `day_id` does not seem to be
+consistent with the sequence of day in a week, so I rearranged the days
+in each week to a normal, reasonable sequence. It seems like this
+individual would typically have more than 100,000 activities counted
+each day, except for the first Monday and two Saturdays (one on the 24th
 day, another one on the 31st day), in which the activity count on both
 days are 1440.
+
+``` r
+accel %>% 
+  mutate(day = fct_relevel(day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))) %>% 
+  group_by(day) %>% 
+  ggplot(aes(x = minute, y = activity_count, color = day)) +
+  geom_smooth(se = FALSE) + 
+  facet_grid(. ~ day) + 
+  labs(
+    title = "Activity count per minute for 24 hour",
+    x = "Minute (24 hour)",
+    y = "Activity count",
+    caption = "Accelerometer data")
+```
+
+![](HW3_files/figure-gfm/activity%20vs%20time%20graph-1.png)<!-- -->
+Based on the graph, in most days of a week, the highest number of
+activity count occurred after 1000 minute, which is around 5pm. However,
+on Sunday, the highest number of activity count occurred at about 600
+minute, which is around 10am. In conclusion, this individual typically
+has highest number of activity count during the late afternoon to early
+evening every day, except for Sunday.
+
+# Problem 3
+
+``` r
+data("ny_noaa")
+
+noaa =
+  ny_noaa %>%  
+  janitor::clean_names() %>% 
+  mutate(
+    tmax = as.numeric(tmax),
+    tmin = as.numeric(tmin)) %>% 
+  separate(date, into = c("year", "month", "day")) %>% 
+  mutate(
+    year = as.integer(year),
+    month = as.integer(month),
+    day = as.integer(day)) %>% 
+  mutate(
+    prcp = prcp / 10,
+    tmax = tmax / 10,
+    tmin = tmin / 10)
+```
+
+After loading and cleaning the `noaa` dataset, it now contains 9
+variables and 2595176 observations. All observations for temperatures,
+precipitation, and snowfall are also in reasonable units (mm). The data
+size is massive, and there is a lot of missing variables across
+different columns. We cannot simply remove those missing values because
+we are not sure they can be safely removed without interfering with the
+analysis. Also, these missing values might impact our mathematical
+computation, and we need to exclude them during computation.
+
+``` r
+noaa %>% 
+  group_by(snow) %>% 
+  summarize(
+    n_times_appear = n()) %>% 
+    arrange(desc(n_times_appear))
+```
+
+    ## # A tibble: 282 × 2
+    ##     snow n_times_appear
+    ##    <int>          <int>
+    ##  1     0        2008508
+    ##  2    NA         381221
+    ##  3    25          31022
+    ##  4    13          23095
+    ##  5    51          18274
+    ##  6    76          10173
+    ##  7     8           9962
+    ##  8     5           9748
+    ##  9    38           9197
+    ## 10     3           8790
+    ## # … with 272 more rows
+
+For snowfall, the most commonly observed value is **0**, meaning 0 mm of
+snowfall. I believe that is because snowfall only occurs during winter,
+and it doesn’t occur every day during the entire winter season. This
+dataset contains daily snowfall information which spans across decades
+from many different weather stations, so it would be normal to see 0 mm
+of snowfall most commonly across this dataset.

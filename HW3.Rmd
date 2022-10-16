@@ -4,8 +4,6 @@ author: "Chee Kay Cheong"
 output: github_document
 ---
 
-# Problem 1
-
 ```{r setup, include = FALSE}
 library(tidyverse)
 library(patchwork)
@@ -13,6 +11,8 @@ library(p8105.datasets)
 
 data("instacart")
 ```
+
+# Problem 1
 
 ```{r distinct users, echo = FALSE}
 n_users =  
@@ -134,32 +134,36 @@ except for Sunday.
 ```{r load ny noaa data}
 data("ny_noaa")
 
-ny_noaa =
+noaa =
   ny_noaa %>%  
   janitor::clean_names() %>% 
   mutate(
-    tmax = as.integer(tmax),
-    tmin = as.integer(tmin)) %>% 
+    tmax = as.numeric(tmax),
+    tmin = as.numeric(tmin)) %>% 
   separate(date, into = c("year", "month", "day")) %>% 
-  mutate(ny_noaa,
+  mutate(
     year = as.integer(year),
     month = as.integer(month),
-    day = as.integer(day),
+    day = as.integer(day)) %>% 
+  mutate(
     prcp = prcp / 10,
     tmax = tmax / 10,
     tmin = tmin / 10)
 ```
-After loading and cleaning the `ny_noaa` dataset, it now contains `r ncol(ny_noaa` variables and `r nrow(ny_noaa)` observations. All observations for temperatures, precipitation, and snowfall are also in reasonable units (mm). The data size is massive, and there is a lot of missing variables across different columns. We cannot simply remove those missing values because we are not sure they can be safely removed without interfering with the analysis. Also, these missing values might impact our mathematical computation :( 
+After loading and cleaning the `noaa` dataset, it now contains `r ncol(noaa)` variables and `r nrow(noaa)` observations. All observations for temperatures, precipitation, and snowfall are also in reasonable units (mm). The data size is massive, and there is a lot of missing variables across different columns. We cannot simply remove those missing values because we are not sure they can be safely removed without interfering with the analysis. Also, these missing values might impact our mathematical computation, and we need to exclude them during computation.
 
 ```{r snowfall common value}
-ny_noaa %>% 
+noaa %>% 
   group_by(snow) %>% 
-  mutate(
-    value = mean(snow, na.rm = TRUE)
-  )
-  
-  
+  summarize(
+    n_times_appear = n()) %>% 
+    arrange(desc(n_times_appear))
 ```
+For snowfall, the most commonly observed value is **0**, meaning 0 mm of snowfall. I believe that is because snowfall only occurs
+during winter, and it doesn't occur every day during the entire winter season. This dataset contains daily snowfall information
+which spans across decades from many different weather stations, so it would be normal to see 0 mm of snowfall most commonly across
+this dataset.
+
 
 
 
