@@ -16,52 +16,27 @@ dataset.
 
 ``` r
 instacart %>% 
-  select(aisle_id, aisle) %>% 
-  distinct() 
+  count(aisle) %>% 
+  arrange(desc(n))
 ```
 
     ## # A tibble: 134 × 2
-    ##    aisle_id aisle                        
-    ##       <int> <chr>                        
-    ##  1      120 yogurt                       
-    ##  2      108 other creams cheeses         
-    ##  3       83 fresh vegetables             
-    ##  4       95 canned meat seafood          
-    ##  5       24 fresh fruits                 
-    ##  6       21 packaged cheese              
-    ##  7        2 specialty cheeses            
-    ##  8      115 water seltzer sparkling water
-    ##  9       53 cream                        
-    ## 10      123 packaged vegetables fruits   
+    ##    aisle                              n
+    ##    <chr>                          <int>
+    ##  1 fresh vegetables              150609
+    ##  2 fresh fruits                  150473
+    ##  3 packaged vegetables fruits     78493
+    ##  4 yogurt                         55240
+    ##  5 packaged cheese                41699
+    ##  6 water seltzer sparkling water  36617
+    ##  7 milk                           32644
+    ##  8 chips pretzels                 31269
+    ##  9 soy lactosefree                26240
+    ## 10 bread                          23635
     ## # … with 124 more rows
 
-``` r
-# There are 134 distinct aisles.
-instacart %>% 
-  group_by(aisle) %>% 
-  summarize(
-    n_order = n()) %>% 
-  arrange(desc(n_order))
-```
-
-    ## # A tibble: 134 × 2
-    ##    aisle                         n_order
-    ##    <chr>                           <int>
-    ##  1 fresh vegetables               150609
-    ##  2 fresh fruits                   150473
-    ##  3 packaged vegetables fruits      78493
-    ##  4 yogurt                          55240
-    ##  5 packaged cheese                 41699
-    ##  6 water seltzer sparkling water   36617
-    ##  7 milk                            32644
-    ##  8 chips pretzels                  31269
-    ##  9 soy lactosefree                 26240
-    ## 10 bread                           23635
-    ## # … with 124 more rows
-
-``` r
-# Most items are ordered from the "Fresh vegetables" aisle.
-```
+There are 134 distinct aisles, and most items are ordered from the
+“Fresh vegetables” aisle.
 
 2.  Make a plot that shows the number of items ordered in each aisle,
     limiting this to aisles with more than 10000 items ordered. Arrange
@@ -69,14 +44,13 @@ instacart %>%
 
 ``` r
 instacart %>% 
-  group_by(aisle) %>% 
-  summarize(
-    n_order = n()) %>% 
-  filter(n_order > 10000) %>% 
-  ggplot(aes(x = aisle, y = n_order, fill = aisle)) +
+  count(aisle) %>% 
+  filter(n > 10000) %>% 
+  mutate(aisle = fct_reorder(aisle, n)) %>% 
+  ggplot(aes(x = aisle, y = n, fill = aisle)) +
   geom_bar(stat = "identity") +
   coord_flip() +
-  geom_text(aes(label = n_order),
+  geom_text(aes(label = n),
             position = position_stack(vjust = 1)) +
   labs(
     title = "Number of items ordered in each aisle",
@@ -90,6 +64,51 @@ instacart %>%
     aisles “baking ingredients”, “dog food care”, and “packaged
     vegetables fruits”. Include the number of times each item is ordered
     in your table.
+
+``` r
+instacart %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>%
+  group_by(aisle) %>% 
+  count(product_name) %>% 
+  mutate(rank = min_rank(desc(n))) %>% 
+  filter(rank < 4) %>% 
+  arrange(desc(n)) %>%
+  knitr::kable()
+```
+
+| aisle                      | product_name                                  |    n | rank |
+|:---------------------------|:----------------------------------------------|-----:|-----:|
+| packaged vegetables fruits | Organic Baby Spinach                          | 9784 |    1 |
+| packaged vegetables fruits | Organic Raspberries                           | 5546 |    2 |
+| packaged vegetables fruits | Organic Blueberries                           | 4966 |    3 |
+| baking ingredients         | Light Brown Sugar                             |  499 |    1 |
+| baking ingredients         | Pure Baking Soda                              |  387 |    2 |
+| baking ingredients         | Cane Sugar                                    |  336 |    3 |
+| dog food care              | Snack Sticks Chicken & Rice Recipe Dog Treats |   30 |    1 |
+| dog food care              | Organix Chicken & Brown Rice Recipe           |   28 |    2 |
+| dog food care              | Small Dog Biscuits                            |   26 |    3 |
+
+4.  Make a table showing the mean hour of the day at which Pink Lady
+    Apples and Coffee Ice Cream are ordered on each day of the week.
+    Format this table for human readers (i.e. produce a 2 x 7 table)
+
+``` r
+instacart %>% 
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
+  group_by(product_name, order_dow) %>% 
+  summarize(mean_hour = mean(order_hour_of_day)) %>% 
+  spread(key = order_dow, value = mean_hour) %>%  
+  # kind of act like pivot_wider
+  knitr::kable(digits = 2)
+```
+
+    ## `summarise()` has grouped output by 'product_name'. You can override using the
+    ## `.groups` argument.
+
+| product_name     |     0 |     1 |     2 |     3 |     4 |     5 |     6 |
+|:-----------------|------:|------:|------:|------:|------:|------:|------:|
+| Coffee Ice Cream | 13.77 | 14.32 | 15.38 | 15.32 | 15.22 | 12.26 | 13.83 |
+| Pink Lady Apples | 13.44 | 11.36 | 11.70 | 14.25 | 11.55 | 12.78 | 11.94 |
 
 # Problem 2
 

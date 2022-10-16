@@ -21,35 +21,31 @@ n_users =
   distinct()
 ```
 
-The `instacart` dataset contains `r ncol(instacart)` variables and `r nrow(instacart)` observations, where each row in the dataset is a product from an order. There is a single order per user, and there are `r nrow(n_users)` unique users in this dataset.
+The `instacart` dataset contains `r ncol(instacart)` variables and `r nrow(instacart)` observations, where each row in the dataset is a product from an order. 
+There is a single order per user, and there are `r nrow(n_users)` unique users in this dataset.
 
 ### Questions
 
 1. How many aisles are there, and which aisles are the most items ordered from?
 ```{r Q1}
 instacart %>% 
-  select(aisle_id, aisle) %>% 
-  distinct() 
-# There are 134 distinct aisles.
-instacart %>% 
-  group_by(aisle) %>% 
-  summarize(
-    n_order = n()) %>% 
-  arrange(desc(n_order))
-# Most items are ordered from the "Fresh vegetables" aisle.
+  count(aisle) %>% 
+  arrange(desc(n))
 ```
+There are 134 distinct aisles, and most items are ordered from the "Fresh vegetables" aisle.
 
-2. Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+
+2. Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. 
+Arrange aisles sensibly, and organize your plot so others can read it.
 ```{r Q2, fig.width = 16, fig.height = 12}
 instacart %>% 
-  group_by(aisle) %>% 
-  summarize(
-    n_order = n()) %>% 
-  filter(n_order > 10000) %>% 
-  ggplot(aes(x = aisle, y = n_order, fill = aisle)) +
+  count(aisle) %>% 
+  filter(n > 10000) %>% 
+  mutate(aisle = fct_reorder(aisle, n)) %>% 
+  ggplot(aes(x = aisle, y = n, fill = aisle)) +
   geom_bar(stat = "identity") +
   coord_flip() +
-  geom_text(aes(label = n_order),
+  geom_text(aes(label = n),
             position = position_stack(vjust = 1)) +
   labs(
     title = "Number of items ordered in each aisle",
@@ -57,9 +53,31 @@ instacart %>%
   theme(legend.key.size = unit(1.2, 'cm'))
 ```
 
-3. Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
-```{r Q3}
 
+3. Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. 
+Include the number of times each item is ordered in your table.
+```{r Q3}
+instacart %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>%
+  group_by(aisle) %>% 
+  count(product_name) %>% 
+  mutate(rank = min_rank(desc(n))) %>% 
+  filter(rank < 4) %>% 
+  arrange(desc(n)) %>%
+  knitr::kable()
+```
+
+
+4. Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week.
+Format this table for human readers (i.e. produce a 2 x 7 table)
+```{r Q4}
+instacart %>% 
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
+  group_by(product_name, order_dow) %>% 
+  summarize(mean_hour = mean(order_hour_of_day)) %>% 
+  spread(key = order_dow, value = mean_hour) %>%  
+  # kind of act like pivot_wider
+  knitr::kable(digits = 2)
 ```
 
 
