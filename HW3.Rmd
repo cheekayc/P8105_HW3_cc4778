@@ -8,13 +8,13 @@ output: github_document
 library(tidyverse)
 library(patchwork)
 library(p8105.datasets)
-
-data("instacart")
 ```
 
 # Problem 1
 
 ```{r distinct users, echo = FALSE}
+data("instacart")
+
 n_users =  
   instacart %>% 
   select(user_id) %>% 
@@ -165,8 +165,107 @@ which spans across decades from many different weather stations, so it would be 
 this dataset.
 
 
+```{r mean tmax in Jan & July across staions, message = FALSE}
+noaa_tmax_jan =
+  noaa %>% 
+  filter(month == 1) %>% 
+  group_by(id, year) %>% 
+  summarize(
+    average_tmax = round(mean(tmax, na.rm = TRUE), 2)) %>% 
+  filter(!is.na(average_tmax))
+  
+noaa_tmax_july = 
+  noaa %>% 
+  filter(month == 7) %>% 
+  group_by(id, year) %>% 
+  summarize(
+    average_tmax = round(mean(tmax, na.rm = TRUE), 2)) %>% 
+  filter(!is.na(average_tmax))
+```
+
+```{r two panel plot, fig.width = 15, fig.height = 12, message = FALSE}
+tmax_jan_plot =
+  noaa_tmax_jan %>% 
+  ggplot(aes(x = year, y = average_tmax, group = id)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    x = "Years",
+    y = "Average maximum temperature",
+    color = "Station",
+    title = "Average maximum temperature in January",
+    caption = "Data come from the ny_noaa") +
+  scale_x_continuous(breaks = seq(1980, 2010, 1)) +
+  theme_gray() +
+  theme(legend.position = "none")
+
+tmax_july_plot = 
+  noaa_tmax_july %>% 
+  ggplot(aes(x = year, y = average_tmax, group = id)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    x = "Years",
+    y = "Average maximum temperature",
+    color = "Station",
+    title = "Average maximum temperature in July",
+    caption = "Data come from the ny_noaa") +
+  scale_x_continuous(breaks = seq(1980, 2010, 1)) +
+  theme_gray()
+
+tmax_jan_plot / tmax_july_plot
+```
+Based on the above two graphs, we can see that the average maximum temperatures in both January and July from each station followed a normal distribution, with some outliers, 
+in each year. In addition, if we compared the average maximum temperatures of January and July for the year 1981 and 2010, we can see that there is an increase in average maximum
+temperature, suggesting the evidence of global warming. 
+
+
+```{r mean tmax and tmin in each year, message = FALSE}
+noaa_tmax =
+  noaa %>% 
+  filter(!is.na(tmax))%>% 
+  group_by(year) %>% 
+  summarize(
+    average_tmax = round(mean(tmax, na.rm = TRUE), 2)) 
+  
+  
+noaa_min = 
+  noaa %>% 
+  filter(!is.na(tmin))%>%
+  group_by(year) %>% 
+  summarize(
+    average_tmin = round(mean(tmin, na.rm = TRUE), 2)) 
+```
 
 
 
+```{r two panel plot, fig.width = 15, fig.height = 12, message = FALSE}
+tmax_plot =
+  noaa_tmax %>% 
+  ggplot(aes(x = year, y = average_tmax, color = id)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    x = "Years",
+    y = "Average maximum temperature",
+    color = "Station",
+    title = "Average maximum temperature",
+    caption = "Data come from the ny_noaa") +
+  ##scale_x_continuous(breaks = seq(1980, 2010, 1)) +
+  theme_gray() +
+  theme(legend.position = "none")
 
+tmin_plot = 
+  noaa_min %>% 
+  ggplot(aes(x = year, y = average_tmin, color = id)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    x = "Years",
+    y = "Average minumum temperature",
+    color = "Station",
+    title = "Average minimum temperature",
+    caption = "Data come from the ny_noaa") +
+  ##scale_x_continuous(breaks = seq(1980, 2010, 1)) +
+  theme_gray() +
+  theme(legend.position = "none")
+
+tmax_plot / tmin_plot
+```
 
