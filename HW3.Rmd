@@ -205,7 +205,6 @@ tmax_july_plot =
   labs(
     x = "Years",
     y = "Average maximum temperature",
-    color = "Station",
     title = "Average maximum temperature in July",
     caption = "Data come from the ny_noaa") +
   scale_x_continuous(breaks = seq(1980, 2010, 1)) +
@@ -218,54 +217,32 @@ in each year. In addition, if we compared the average maximum temperatures of Ja
 temperature, suggesting the evidence of global warming. 
 
 
-```{r mean tmax and tmin in each year, message = FALSE}
-noaa_tmax =
+
+```{r temp & snow, fig.width = 15, fig.height = 12, message = FALSE}
+temp_plot =
   noaa %>% 
-  filter(!is.na(tmax))%>% 
-  group_by(year) %>% 
-  summarize(
-    average_tmax = round(mean(tmax, na.rm = TRUE), 2)) 
-  
-  
-noaa_min = 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_hex(na.rm = TRUE) +
+  labs(
+    x = "Minimum temperature",
+    y = "Maximum temperature",
+    title = "Maximum temperature vs. Minimum temperature",
+    caption = "Data comes from 'ny_noaa'")
+
+
+snow_plot =
   noaa %>% 
-  filter(!is.na(tmin))%>%
-  group_by(year) %>% 
-  summarize(
-    average_tmin = round(mean(tmin, na.rm = TRUE), 2)) 
-```
-
-
-
-```{r two panel plot, fig.width = 15, fig.height = 12, message = FALSE}
-tmax_plot =
-  noaa_tmax %>% 
-  ggplot(aes(x = year, y = average_tmax, color = id)) +
-  geom_point(alpha = 0.3) +
+  filter((snow > 0) & (snow < 100)) %>%
+  ggplot(aes(x = year, y = snow, group = year)) + 
+  geom_boxplot() +
   labs(
-    x = "Years",
-    y = "Average maximum temperature",
-    color = "Station",
-    title = "Average maximum temperature",
-    caption = "Data come from the ny_noaa") +
-  ##scale_x_continuous(breaks = seq(1980, 2010, 1)) +
-  theme_gray() +
-  theme(legend.position = "none")
+    x = "Year",
+    y = "Snowfall (mm)",
+    title = "Snowfall Distribution of each year",
+    caption = "Data comes from 'ny_noaa'") +
+  scale_x_continuous(breaks = seq(1980, 2010, 1)) +
+  theme_gray()
 
-tmin_plot = 
-  noaa_min %>% 
-  ggplot(aes(x = year, y = average_tmin, color = id)) +
-  geom_point(alpha = 0.3) +
-  labs(
-    x = "Years",
-    y = "Average minumum temperature",
-    color = "Station",
-    title = "Average minimum temperature",
-    caption = "Data come from the ny_noaa") +
-  ##scale_x_continuous(breaks = seq(1980, 2010, 1)) +
-  theme_gray() +
-  theme(legend.position = "none")
-
-tmax_plot / tmin_plot
+temp_plot / snow_plot
 ```
 

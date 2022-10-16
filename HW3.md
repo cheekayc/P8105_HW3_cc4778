@@ -261,3 +261,89 @@ and it doesn’t occur every day during the entire winter season. This
 dataset contains daily snowfall information which spans across decades
 from many different weather stations, so it would be normal to see 0 mm
 of snowfall most commonly across this dataset.
+
+``` r
+noaa_tmax_jan =
+  noaa %>% 
+  filter(month == 1) %>% 
+  group_by(id, year) %>% 
+  summarize(
+    average_tmax = round(mean(tmax, na.rm = TRUE), 2)) %>% 
+  filter(!is.na(average_tmax))
+  
+noaa_tmax_july = 
+  noaa %>% 
+  filter(month == 7) %>% 
+  group_by(id, year) %>% 
+  summarize(
+    average_tmax = round(mean(tmax, na.rm = TRUE), 2)) %>% 
+  filter(!is.na(average_tmax))
+```
+
+``` r
+tmax_jan_plot =
+  noaa_tmax_jan %>% 
+  ggplot(aes(x = year, y = average_tmax, group = id)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    x = "Years",
+    y = "Average maximum temperature",
+    color = "Station",
+    title = "Average maximum temperature in January",
+    caption = "Data come from the ny_noaa") +
+  scale_x_continuous(breaks = seq(1980, 2010, 1)) +
+  theme_gray() +
+  theme(legend.position = "none")
+
+tmax_july_plot = 
+  noaa_tmax_july %>% 
+  ggplot(aes(x = year, y = average_tmax, group = id)) +
+  geom_point(alpha = 0.3) +
+  labs(
+    x = "Years",
+    y = "Average maximum temperature",
+    title = "Average maximum temperature in July",
+    caption = "Data come from the ny_noaa") +
+  scale_x_continuous(breaks = seq(1980, 2010, 1)) +
+  theme_gray()
+
+tmax_jan_plot / tmax_july_plot
+```
+
+![](HW3_files/figure-gfm/two%20panel%20plot-1.png)<!-- --> Based on the
+above two graphs, we can see that the average maximum temperatures in
+both January and July from each station followed a normal distribution,
+with some outliers, in each year. In addition, if we compared the
+average maximum temperatures of January and July for the year 1981 and
+2010, we can see that there is an increase in average maximum
+temperature, suggesting the evidence of global warming.
+
+``` r
+temp_plot =
+  noaa %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_hex(na.rm = TRUE) +
+  labs(
+    x = "Minimum temperature",
+    y = "Maximum temperature",
+    title = "Maximum temperature vs. Minimum temperature",
+    caption = "Data comes from 'ny_noaa'")
+
+
+snow_plot =
+  noaa %>% 
+  filter((snow > 0) & (snow < 100)) %>%
+  ggplot(aes(x = year, y = snow, group = year)) + 
+  geom_boxplot() +
+  labs(
+    x = "Year",
+    y = "Snowfall (mm)",
+    title = "Snowfall Distribution of each year",
+    caption = "Data comes from 'ny_noaa'") +
+  scale_x_continuous(breaks = seq(1980, 2010, 1)) +
+  theme_gray()
+
+temp_plot / snow_plot
+```
+
+![](HW3_files/figure-gfm/temp%20&%20snow-1.png)<!-- -->
