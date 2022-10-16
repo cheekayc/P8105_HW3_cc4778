@@ -94,6 +94,7 @@ The variables are:
 
 * `week_` : character
 
+
 ```{r total activity variable, message = FALSE}
 accel %>% 
   mutate(day = fct_relevel(day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))) %>% 
@@ -122,7 +123,10 @@ accel %>%
     y = "Activity count",
     caption = "Accelerometer data")
 ```
-
+Based on the graph, in most days of a week, the highest number of activity count occurred after 1000 minute, which is around 5pm. 
+However, on Sunday, the highest number of activity count occurred at about 600 minute, which is around 10am. 
+In conclusion, this individual typically has highest number of activity count during the late afternoon to early evening every day,
+except for Sunday.
 
 
 # Problem 3
