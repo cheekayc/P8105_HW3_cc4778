@@ -96,14 +96,18 @@ The variables are:
 
 ```{r total activity variable, message = FALSE}
 accel %>% 
-  group_by(week, day_id, day) %>% 
+  mutate(day = fct_relevel(day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))) %>% 
+  group_by(week, day) %>% 
   summarize(
     total_activity_per_day = sum(activity_count)) %>% 
  knitr::kable(digits = 1)
 ```
-There are 5 weeks and 35 days, but the `day_id` does not seem to be consistent with the sequence of day in a week. 
-It seems like this individual would typically have more than 100000 activities counted every day, except for two Saturdays 
-(one on the 24th day, another one on the 31st day), in which the activity count on both days are 1440. 
+There are 5 weeks and 35 days, but the `day_id` does not seem to be consistent with the sequence of day in a week, 
+so I rearranged the days in each week to a normal, reasonable sequence. 
+It seems like this individual would typically have more than 100,000 activities counted each day, 
+except for the first Monday and two Saturdays (one on the 24th day, another one on the 31st day), 
+in which the activity count on both days are 1440. 
+
 
 ```{r activity vs time graph, fig.width = 16, fig.height = 12, message = FALSE}
 accel %>% 
