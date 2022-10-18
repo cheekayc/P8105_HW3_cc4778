@@ -119,6 +119,9 @@ accel %>%
   group_by(week, day) %>% 
   summarize(
     total_activity_per_day = sum(activity_count)) %>% 
+  pivot_wider(
+    names_from = "day",
+    values_from = "total_activity_per_day") %>% 
  knitr::kable(digits = 1)
 ```
 There are 5 weeks and 35 days, but the `day_id` does not seem to be consistent with the sequence of day in a week, 
@@ -205,10 +208,10 @@ noaa_tmax_july =
 tmax_jan_plot =
   noaa_tmax_jan %>% 
   ggplot(aes(x = year, y = average_tmax, group = id)) +
-  geom_point(alpha = 0.3) +
+  geom_point(alpha = 0.3) + 
   labs(
     x = "Years",
-    y = "Average maximum temperature",
+    y = "Average maximum temperature (C)",
     color = "Station",
     title = "Average maximum temperature in January",
     caption = "Data come from the ny_noaa") +
@@ -222,7 +225,7 @@ tmax_july_plot =
   geom_point(alpha = 0.3) +
   labs(
     x = "Years",
-    y = "Average maximum temperature",
+    y = "Average maximum temperature (C)",
     title = "Average maximum temperature in July",
     caption = "Data come from the ny_noaa") +
   scale_x_continuous(breaks = seq(1980, 2010, 1)) +
@@ -242,8 +245,8 @@ temp_plot =
   ggplot(aes(x = tmin, y = tmax)) +
   geom_hex(na.rm = TRUE) +
   labs(
-    x = "Minimum temperature",
-    y = "Maximum temperature",
+    x = "Minimum temperature (C)",
+    y = "Maximum temperature (C)",
     title = "Maximum temperature vs. Minimum temperature",
     caption = "Data comes from 'ny_noaa'")
 

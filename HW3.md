@@ -149,46 +149,19 @@ accel %>%
   group_by(week, day) %>% 
   summarize(
     total_activity_per_day = sum(activity_count)) %>% 
+  pivot_wider(
+    names_from = "day",
+    values_from = "total_activity_per_day") %>% 
  knitr::kable(digits = 1)
 ```
 
-| week | day       | total_activity_per_day |
-|-----:|:----------|-----------------------:|
-|    1 | Monday    |                78828.1 |
-|    1 | Tuesday   |               307094.2 |
-|    1 | Wednesday |               340115.0 |
-|    1 | Thursday  |               355923.6 |
-|    1 | Friday    |               480542.6 |
-|    1 | Saturday  |               376254.0 |
-|    1 | Sunday    |               631105.0 |
-|    2 | Monday    |               295431.0 |
-|    2 | Tuesday   |               423245.0 |
-|    2 | Wednesday |               440962.0 |
-|    2 | Thursday  |               474048.0 |
-|    2 | Friday    |               568839.0 |
-|    2 | Saturday  |               607175.0 |
-|    2 | Sunday    |               422018.0 |
-|    3 | Monday    |               685910.0 |
-|    3 | Tuesday   |               381507.0 |
-|    3 | Wednesday |               468869.0 |
-|    3 | Thursday  |               371230.0 |
-|    3 | Friday    |               467420.0 |
-|    3 | Saturday  |               382928.0 |
-|    3 | Sunday    |               467052.0 |
-|    4 | Monday    |               409450.0 |
-|    4 | Tuesday   |               319568.0 |
-|    4 | Wednesday |               434460.0 |
-|    4 | Thursday  |               340291.0 |
-|    4 | Friday    |               154049.0 |
-|    4 | Saturday  |                 1440.0 |
-|    4 | Sunday    |               260617.0 |
-|    5 | Monday    |               389080.0 |
-|    5 | Tuesday   |               367824.0 |
-|    5 | Wednesday |               445366.0 |
-|    5 | Thursday  |               549658.0 |
-|    5 | Friday    |               620860.0 |
-|    5 | Saturday  |                 1440.0 |
-|    5 | Sunday    |               138421.0 |
+| week |   Monday |  Tuesday | Wednesday | Thursday |   Friday | Saturday | Sunday |
+|-----:|---------:|---------:|----------:|---------:|---------:|---------:|-------:|
+|    1 |  78828.1 | 307094.2 |    340115 | 355923.6 | 480542.6 |   376254 | 631105 |
+|    2 | 295431.0 | 423245.0 |    440962 | 474048.0 | 568839.0 |   607175 | 422018 |
+|    3 | 685910.0 | 381507.0 |    468869 | 371230.0 | 467420.0 |   382928 | 467052 |
+|    4 | 409450.0 | 319568.0 |    434460 | 340291.0 | 154049.0 |     1440 | 260617 |
+|    5 | 389080.0 | 367824.0 |    445366 | 549658.0 | 620860.0 |     1440 | 138421 |
 
 There are 5 weeks and 35 days, but the `day_id` does not seem to be
 consistent with the sequence of day in a week, so I rearranged the days
@@ -303,10 +276,10 @@ noaa_tmax_july =
 tmax_jan_plot =
   noaa_tmax_jan %>% 
   ggplot(aes(x = year, y = average_tmax, group = id)) +
-  geom_point(alpha = 0.3) +
+  geom_point(alpha = 0.3) + 
   labs(
     x = "Years",
-    y = "Average maximum temperature",
+    y = "Average maximum temperature (C)",
     color = "Station",
     title = "Average maximum temperature in January",
     caption = "Data come from the ny_noaa") +
@@ -320,7 +293,7 @@ tmax_july_plot =
   geom_point(alpha = 0.3) +
   labs(
     x = "Years",
-    y = "Average maximum temperature",
+    y = "Average maximum temperature (C)",
     title = "Average maximum temperature in July",
     caption = "Data come from the ny_noaa") +
   scale_x_continuous(breaks = seq(1980, 2010, 1)) +
@@ -343,8 +316,8 @@ temp_plot =
   ggplot(aes(x = tmin, y = tmax)) +
   geom_hex(na.rm = TRUE) +
   labs(
-    x = "Minimum temperature",
-    y = "Maximum temperature",
+    x = "Minimum temperature (C)",
+    y = "Maximum temperature (C)",
     title = "Maximum temperature vs. Minimum temperature",
     caption = "Data comes from 'ny_noaa'")
 
